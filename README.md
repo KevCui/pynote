@@ -1,6 +1,6 @@
 ---
 Title: pynote
-Description: :notebook_with_decorative_cover: organize notes easily and simply in terminal
+Description: Organize notes easily and simply in terminal
 Author: KrazyCavin
 Tags: CLI, python, script
 created:  25 Mar 2017
@@ -8,7 +8,7 @@ created:  25 Mar 2017
 
 pynote
 ==========
-pynote is a note organization script, aims to create/modify/find/organize notes easily. As a CLI fan, I tried to find some notes tool in terminal. But I cannot find one which is easily to use. So I decide to create my own tool.
+pynote is a :notebook_with_decorative_cover: organization script, aims to create/modify/find/organize notes easily. As a CLI fan, I tried to find some notes tool in terminal. But I cannot find one which is easily to use. So I decide to create my own tool.
 
 ### Requirement
 * Python3

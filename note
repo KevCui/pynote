@@ -1,0 +1,187 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import os
+import sys
+import subprocess
+import glob
+import time
+import logging
+import argparse
+from datetime import datetime
+
+# Define global variables
+TIME_FORMAT = '%Y-%m-%d %H:%M:%S %a'
+TEMPLATE_PATH = './template'
+EDITOR = 'vim'
+
+def configLog(debug):
+    "Configure logging"
+    logfile = os.path.basename(__file__).replace('.py', '.log') if debug == True else None
+    loglevel = logging.DEBUG if logfile is not None else None
+    logging.basicConfig(format='%(asctime)s [%(levelname)8s] %(message)s', filename=logfile, level=loglevel)
+
+def getmtime(fname):
+    "Get last modify time and format it"
+    return datetime.fromtimestamp(os.path.getmtime(fname)).strftime(TIME_FORMAT)
+
+def findFiles(pattern):
+    "Get all files which mataches pattern"
+    logging.debug('  >> findFiles')
+
+    files = glob.glob(pattern, recursive=True)
+    files.sort(key=os.path.getmtime, reverse=True)
+    logging.debug('files:\n' + str(files))
+
+    logging.debug('  << findFiles')
+    return files
+
+def appendLine(fname, line):
+    "Append line at the end of file"
+    logging.debug('  >> appendLine')
+
+    try:
+        f = open(fname, 'r+')
+    except IOError:
+        f = open(fname, 'w+')
+
+    content = f.read()
+    f.write('\n' + line)
+    logging.debug('  << appendLine')
+
+def prependLine(fname, line):
+    "Prepend line at the beginning of file"
+    logging.debug('  >> prependLine')
+
+    try:
+        f = open(fname, 'r+')
+    except IOError:
+        f = open(fname, 'w+')
+    content = f.read()
+    f.seek(0, 0)
+    f.write(line.rstrip('\r\n') + '\n' + content)
+    f.close()
+    logging.debug('  << prependLine')
+
+def showNotes(path):
+    "Display all notes in path"
+    logging.debug('  >> showNotes')
+
+    os.chdir(path)
+
+    files = findFiles('./**/*.md')
+
+    print("NOTES:")
+    for fname in files:
+        print('[' + str(getmtime(fname)) + '] ' + fname.replace('./', ''))
+    logging.debug('  << showNotes')
+
+def showFolders(path):
+    "Display all folders in path"
+    logging.debug('  >> showFolders')
+
+    os.chdir(path)
+    folders = findFiles('./**/')
+
+    print("FOLDERS:")
+    for folder in folders:
+        if str(folder) != './':
+            print('[' + str(getmtime(folder)) + '] ' + folder.replace('./', ''))
+    logging.debug('  << showFolders')
+
+def getTemplate(fname):
+    "Get template content"
+    logging.debug('  << getTemplate')
+
+    fname = TEMPLATE_PATH + '/' + ''.join(fname)
+    if os.path.isfile(fname):
+        f = open(fname)
+        content = f.read()
+        f.close()
+        logging.debug('  >> getTemplate')
+        return content
+    else:
+        print('Template "' + fname + '" not found')
+        logging.debug('  >> getTemplate')
+        sys.exit(1)
+
+def checkFolder(name):
+    "Check folder existance or List its notes"
+    logging.debug('  >> checkFolder')
+
+    name = ''.join(name)
+    if os.path.exists(name):
+        print('In folder "' + name + '"')
+        showNotes(name)
+    else:
+        os.mkdir(name)
+        print('New folder "' + name + '" created')
+    logging.debug('  << checkFolder')
+
+def editFile(fname, tmpl=None):
+    "Edit file"
+    logging.debug('  >> editFile')
+
+    fname = ' '.join(fname)
+
+    if '.md' not in ''.join(fname):
+        fname += '.md'
+
+    logging.debug('file name: ' + str(fname))
+    logging.debug('tmpl: ' + str(tmpl))
+
+    cmd =  EDITOR + ' "+normal G$" ' + fname.replace(' ', '\ ')
+    timeStr = time.strftime('*' + TIME_FORMAT + '*')
+
+    if tmpl != None:
+        appendLine(fname, tmpl)
+    prependLine(fname, timeStr)
+    subprocess.call(cmd, shell=True)
+    logging.debug('  << editFile')
+
+def showAll():
+    "Show all notes and folders"
+    logging.debug('  >> showAll')
+
+    showNotes('./')
+    print()
+    showFolders('./')
+
+    logging.debug('  << showAll')
+
+def main():
+    # Setup parameter
+    #   run script with -d, active debug mode (log file will be created)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('text', nargs='*', help='input text')
+    parser.add_argument('-f', '--folder', nargs=1, dest="folder", help='create folder or show files in folder')
+    parser.add_argument('-t', '--template', nargs=1, dest="template", help='use template')
+    parser.add_argument('-d', '--debug',  action='store_true', dest="debug", help='active debug log')
+
+    args = parser.parse_args()
+
+    # Config logging
+    configLog(args.debug)
+    logging.debug('args:\n' + str(args))
+    logging.debug('len argv: ' + str(len(sys.argv)))
+
+    # Show all notes and folders
+    if len(sys.argv) == 1 or (len(sys.argv) < 3 and args.debug != False):
+        showAll()
+        sys.exit(1)
+
+    # Create folder or list files in folder
+    if args.folder:
+        checkFolder(args.folder)
+        sys.exit(1)
+
+    # Create/Modify notes
+    if args.text:
+        tmpl = None
+        if args.template:
+            tmpl = getTemplate(args.template)
+
+        editFile(args.text, tmpl)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

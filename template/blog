@@ -1,0 +1,12 @@
+---
+title: ""
+date:  `date "+%Y-%m-%d %H:%M:%S"` +0200
+categories: []
+excerpt: ""
+tags: []
+---
+
+<sup><a name="back1">[[1]](#link1)</a></sup>
+<a name="link1">[[1]](#back1)</a>
+
+[Basic syntax help for Markdown](http://daringfireball.net/projects/markdown/basics)

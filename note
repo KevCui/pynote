@@ -67,41 +67,42 @@ def prependLine(fname, line):
     f.close()
     logging.debug('  << prependLine')
 
-def updateJson(obj, files):
+def updateJson(jfile):
     "Update local file id namd file name mapping"
+    files = findFiles('./**/*.md')
+    logging.debug('files: ' + str(files))
+
     i = 1
     data = {}
-    for f in files:
-        data[i] = f
+    for fn in files:
+        data[i] = fn.replace('./', '')
         i += 1
     logging.debug('update json: ' + str(data))
-    with open(obj + '.json', 'w') as f:
+    with open(jfile, 'w') as f:
         json.dump(data, f, ensure_ascii=False)
 
 def printColoredData(data):
     "Print data with color"
-    logging.debug('  >> printColoredData')
-    for k,v in data.items():
-        flag = True
-        if 'FILTER' in globals() and FILTER != '':
-            if str(FILTER).lower() not in str(v).lower():
-                flag = False
-
-        if flag:
-            print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(v.replace('./', ''), 'green'))
 
     logging.debug('  << printColoredData')
 
-def showNotes(path):
+def showNotes():
     "Display all notes in path"
     logging.debug('  >> showNotes')
 
-    notes = findFiles('./**/*.md')
-    updateJson('note', notes)
+    updateJson(NOTE_JSON)
 
     with open(NOTE_JSON, 'r') as f:
-        printColoredData(json.load(f))
-
+        for k,v in json.load(f).items():
+            if 'FILTER' in globals() and FILTER != '':
+                if str(FILTER).lower() in str(v).lower():
+                    index = str(v).lower().index(str(FILTER))
+                    before = v[:index]
+                    match = v[index:index+len(FILTER)]
+                    after = v[index+len(FILTER):]
+                    print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(before, 'green') + colored(match, 'red') + colored(after, 'green'))
+            else:
+                print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(v, 'green'))
     logging.debug('  << showNotes')
 
 def getTemplate(fname):
@@ -148,7 +149,7 @@ def main():
     #
     parser = argparse.ArgumentParser()
     parser.add_argument('text', nargs='*', help='input text')
-    parser.add_argument('-rm', '--remove', nargs=1, dest="remove", help='remove note')
+    parser.add_argument('-i', '--remove', nargs=1, dest="id", help='open note with id')
     parser.add_argument('-f', '--filter', nargs=1, dest="filter", help='filter display result')
     parser.add_argument('-t', '--template', nargs=1, dest="template", help='use template')
     parser.add_argument('-d', '--debug',  action='store_true', dest="debug", help='active debug log')
@@ -160,6 +161,9 @@ def main():
     logging.debug('args:\n' + str(args))
     logging.debug('len argv: ' + str(len(sys.argv)))
 
+    # Initial local json file
+    updateJson(NOTE_JSON)
+
     # Apply filter
     if args.filter:
         global FILTER
@@ -168,8 +172,13 @@ def main():
 
     # Show all notes
     if len(sys.argv) == 1 or (len(sys.argv) < 3 and args.debug != False) or 'FILTER' in globals():
-        showNotes('./')
+        showNotes()
         sys.exit(1)
+
+    # Open note with id
+    if args.id:
+        noteid = str(args.id)
+        logging.debug('ID: ' + noteid)
 
     # Create/Modify notes
     if args.text:

@@ -88,6 +88,9 @@ def showNotes():
     "Display all notes in path"
     logging.debug('  >> showNotes')
 
+    # Initial local json file
+    updateJSON(NOTE_JSON)
+
     with open(NOTE_JSON, 'r') as f:
         for k,v in json.load(f).items():
             if 'FILTER' in globals() and FILTER != '':
@@ -156,9 +159,6 @@ def main():
     configLog(args.debug)
     logging.debug('args:\n' + str(args))
     logging.debug('len argv: ' + str(len(sys.argv)))
-
-    # Initial local json file
-    updateJSON(NOTE_JSON)
 
     # Apply filter
     if args.filter:

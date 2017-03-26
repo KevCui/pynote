@@ -19,11 +19,6 @@ TEMPLATE_PATH = './template'
 EDITOR = 'vim'
 NOTE_JSON = 'note.json'
 
-#
-# Global variables
-#
-FILTER = ''
-
 def configLog(debug):
     "Configure logging"
     logfile = os.path.basename(__file__) + '.log' if debug == True else None
@@ -84,17 +79,26 @@ def updateJson(obj, files):
         json.dump(data, f, ensure_ascii=False)
 
 def printColoredData(data):
+    "Print data with color"
+    logging.debug('  >> printColoredData')
     for k,v in data.items():
-        print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(v.replace('./', ''), 'green'))
+        flag = True
+        if 'FILTER' in globals() and FILTER != '':
+            if str(FILTER).lower() not in str(v).lower():
+                flag = False
+
+        if flag:
+            print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(v.replace('./', ''), 'green'))
+
+    logging.debug('  << printColoredData')
 
 def showNotes(path):
     "Display all notes in path"
     logging.debug('  >> showNotes')
 
-    notes = [path + x.replace('./', '/') for x in findFiles('./**/*.md')]
+    notes = findFiles('./**/*.md')
     updateJson('note', notes)
 
-    print("NOTES:")
     with open(NOTE_JSON, 'r') as f:
         printColoredData(json.load(f))
 
@@ -158,10 +162,12 @@ def main():
 
     # Apply filter
     if args.filter:
-        FILTER = str(args.filter)
+        global FILTER
+        FILTER = str(args.filter[0])
+        logging.debug('FILTER: ' + FILTER)
 
     # Show all notes
-    if len(sys.argv) == 1 or (len(sys.argv) < 3 and args.debug != False):
+    if len(sys.argv) == 1 or (len(sys.argv) < 3 and args.debug != False) or 'FILTER' in globals():
         showNotes('./')
         sys.exit(1)
 

@@ -72,7 +72,7 @@ def showNotes(path):
 
     print("NOTES:")
     for fname in files:
-        print('[' + str(getmtime(fname)) + '] ' + fname.replace('./', ''))
+        print(str(getmtime(fname)) + '| ' + fname.replace('./', ''))
     logging.debug('  << showNotes')
 
 def showFolders(path):
@@ -85,7 +85,7 @@ def showFolders(path):
     print("FOLDERS:")
     for folder in folders:
         if str(folder) != './':
-            print('[' + str(getmtime(folder)) + '] ' + folder.replace('./', ''))
+            print(str(getmtime(folder)) + '| ' + folder.replace('./', ''))
     logging.debug('  << showFolders')
 
 def getTemplate(fname):

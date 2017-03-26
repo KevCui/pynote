@@ -27,7 +27,7 @@ def configLog(debug):
 
 def getmtime(fname):
     "Get last modify time and format it"
-    return datetime.fromtimestamp(os.path.getmtime(fname)).strftime(TIME_FORMAT)
+    return datetime.fromtimestamp(os.path.getmtime(fname + '.md')).strftime(TIME_FORMAT)
 
 def findFiles(pattern):
     "Get all files which mataches pattern"
@@ -67,30 +67,26 @@ def prependLine(fname, line):
     f.close()
     logging.debug('  << prependLine')
 
-def updateJson(jfile):
+def updateJSON(jfile):
     "Update local file id namd file name mapping"
+    logging.debug('  >> updateJSON')
+
     files = findFiles('./**/*.md')
     logging.debug('files: ' + str(files))
 
     i = 1
     data = {}
     for fn in files:
-        data[i] = fn.replace('./', '')
+        data[i] = fn.replace('./', '').replace('.md', '')
         i += 1
     logging.debug('update json: ' + str(data))
     with open(jfile, 'w') as f:
         json.dump(data, f, ensure_ascii=False)
-
-def printColoredData(data):
-    "Print data with color"
-
-    logging.debug('  << printColoredData')
+    logging.debug('  << updateJSON')
 
 def showNotes():
     "Display all notes in path"
     logging.debug('  >> showNotes')
-
-    updateJson(NOTE_JSON)
 
     with open(NOTE_JSON, 'r') as f:
         for k,v in json.load(f).items():
@@ -162,7 +158,7 @@ def main():
     logging.debug('len argv: ' + str(len(sys.argv)))
 
     # Initial local json file
-    updateJson(NOTE_JSON)
+    updateJSON(NOTE_JSON)
 
     # Apply filter
     if args.filter:
@@ -177,8 +173,15 @@ def main():
 
     # Open note with id
     if args.id:
-        noteid = str(args.id)
+        noteid = str(args.id[0])
         logging.debug('ID: ' + noteid)
+        with open(NOTE_JSON, 'r') as f:
+            for k,v in json.load(f).items():
+                if str(k) == noteid:
+                    args.text = [v]
+        if len(args.text) is 0:
+            cprint('Cannot find file related to id "' + noteid + '"', 'red')
+        logging.debug('args.text: ' + str(args.text))
 
     # Create/Modify notes
     if args.text:

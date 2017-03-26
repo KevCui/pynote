@@ -12,6 +12,13 @@ pynote is a :notebook_with_decorative_cover: organization script, aims to create
 
 ### Requirement
 * Python3
+* termcolor
+
+### Installation
+```
+pip install -r requirements.txt
+
+```
 
 ### Customization
 * Variables below in **note**  can be customized:
@@ -22,25 +29,22 @@ EDITOR
 ```
 ### How to use
 ```
-usage: note [-h] [-f FOLDER] [-t TEMPLATE] [-d] [text [text ...]]
+usage: note [-h] [-i ID] [-f FILTER] [-t TEMPLATE] [-d] [text [text ...]]
 
 positional arguments:
   text                  input text
 
 optional arguments:
   -h, --help            show this help message and exit
-  -f FOLDER, --folder FOLDER
-                        create folder or show files in folder
+  -i ID, --remove ID    open note with id
+  -f FILTER, --filter FILTER
+                        filter display result
   -t TEMPLATE, --template TEMPLATE
                         use template
   -d, --debug           active debug log
 ```
 
 ### Example
-* Create new *blog* folder:
-
-```~$ note -f blog```
-
 * Create new note *post* with template *blog*:
 
 ```~$ note post -t blog```
@@ -48,3 +52,7 @@ optional arguments:
 * Show all notes and folders:
 
 ```~$ note```
+
+* Filter notes by key word *blog*:
+
+```~$ note -f blog```

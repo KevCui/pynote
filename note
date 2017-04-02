@@ -69,29 +69,31 @@ def prependLine(fname, line):
     f.close()
     logging.debug('  << prependLine')
 
-def updateJSON(jfile):
+def updateJSON(jfile, folder):
     "Update local file id namd file name mapping"
     logging.debug('  >> updateJSON')
+    logging.debug('folder:' + str(folder))
 
-    files = findFiles('./**/*.md')
+    files = findFiles(folder + '/**/*.md')
     logging.debug('files: ' + str(files))
 
     i = 1
     data = {}
     for fn in files:
-        data[i] = fn.replace('./', '').replace('.md', '')
-        i += 1
+        if os.path.dirname(fn).startswith('./archive') != True:
+            data[i] = fn.replace('./', '').replace('.md', '')
+            i += 1
     logging.debug('update json: ' + str(data))
     with open(jfile, 'w') as f:
         json.dump(data, f, ensure_ascii=False)
     logging.debug('  << updateJSON')
 
-def showNotes():
+def showNotes(folder='.'):
     "Display all notes in path"
     logging.debug('  >> showNotes')
 
     # Initial local json file
-    updateJSON(NOTE_JSON)
+    updateJSON(NOTE_JSON, folder)
 
     with open(NOTE_JSON, 'r') as f:
         for k,v in json.load(f).items():
@@ -122,18 +124,20 @@ def getTemplate(fname):
         logging.debug('  >> getTemplate')
         sys.exit(1)
 
-def removeFile(fname):
-    "Remove file"
-    logging.debug('  >> removeFile')
+def moveFiletoFolder(fname, folder, extension=True):
+    "Move file to folder with/without keeping file extension"
+    logging.debug('  >> moveFiletoFolder')
 
-    os.makedirs('trash', exist_ok=True)
+    os.makedirs(folder, exist_ok=True)
 
     if os.path.isfile(fname):
-        shutil.move(fname, 'trash/' + os.path.splitext(os.path.basename(fname))[0])
+        if extension == True:
+            shutil.move(fname, folder + '/' + os.path.basename(fname))
+        else:
+            shutil.move(fname, folder + '/' + os.path.splitext(os.path.basename(fname))[0])
     else:
         print(colored('File "' + fname + '" not found'))
-
-    logging.debug('  << removeFile')
+    logging.debug('  << moveFiletoFolder')
 
 def getFileName(fname):
     logging.debug('  >> getFileName')
@@ -176,6 +180,7 @@ def main():
     parser.add_argument('-i', '--id', nargs=1, dest="id", help='open note with id')
     parser.add_argument('-f', '--filter', nargs=1, dest="filter", help='filter display result')
     parser.add_argument('-rm', '--remove', action='store_true', dest="remove", help='remove a note')
+    parser.add_argument('-a', '--archive', action='store_true', dest="archive", help='move note to archive, without parameter to show all archived notes')
     parser.add_argument('-t', '--template', nargs=1, dest="template", help='use template')
     parser.add_argument('-d', '--debug',  action='store_true', dest="debug", help='active debug log')
 
@@ -209,20 +214,30 @@ def main():
             cprint('Cannot find file related to id "' + noteid + '"', 'red')
         logging.debug('args.text: ' + str(args.text))
 
-    # Create/Modify/Remove notes
+    # Create/Modify/Remove/Archive note
     if args.text:
         tmpl = None
         if args.template:
             tmpl = getTemplate(args.template)
 
         fname = getFileName(args.text)
-        # Remove notes
+        # Remove note
         if args.remove == True:
-            removeFile(fname)
+            moveFiletoFolder(fname, 'trash', False)
+            sys.exit(1)
+
+        # Archive note
+        if args.archive== True:
+            moveFiletoFolder(fname, 'archive')
             sys.exit(1)
 
         # Create/Modify notes
         editFile(fname, tmpl)
+    else:
+        # Show notes in archive
+        if args.archive== True:
+            print('All archived notes:')
+            showNotes('archive')
 
 if __name__ == '__main__':
     main()

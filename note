@@ -94,15 +94,16 @@ def showNotes():
 
     with open(NOTE_JSON, 'r') as f:
         for k,v in json.load(f).items():
-            if 'FILTER' in globals() and FILTER != '':
-                if str(FILTER).lower() in str(v).lower():
-                    index = str(v).lower().index(str(FILTER))
-                    before = v[:index]
-                    match = v[index:index+len(FILTER)]
-                    after = v[index+len(FILTER):]
-                    print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(before, 'green') + colored(match, 'red') + colored(after, 'green'))
-            else:
-                print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(v, 'green'))
+            if not os.path.dirname(str(v)).startswith('trash'):
+                if 'FILTER' in globals() and FILTER != '':
+                    if str(FILTER).lower() in str(v).lower():
+                        index = str(v).lower().index(str(FILTER).lower())
+                        before = v[:index]
+                        match = v[index:index+len(FILTER)]
+                        after = v[index+len(FILTER):]
+                        print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(before, 'green') + colored(match, 'red') + colored(after, 'green'))
+                else:
+                    print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(v, 'green'))
     logging.debug('  << showNotes')
 
 def getTemplate(fname):

@@ -5,7 +5,7 @@
 
 [x] Fix bug: create folder/note, folder not exist
 
-- Delete note and folder
+[x] Delete note and folder
 
 [x] Map notes to id number, fast open using id
 

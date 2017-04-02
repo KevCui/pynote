@@ -8,6 +8,7 @@ import time
 import logging
 import argparse
 import json
+import shutil
 from datetime import datetime
 from termcolor import colored, cprint
 
@@ -120,19 +121,35 @@ def getTemplate(fname):
         logging.debug('  >> getTemplate')
         sys.exit(1)
 
-def editFile(fname, tmpl=None):
-    "Edit file"
-    logging.debug('  >> editFile')
+def removeFile(fname):
+    "Remove file"
+    logging.debug('  >> removeFile')
 
-    fname = ' '.join(fname)
+    os.makedirs('trash', exist_ok=True)
+    shutil.move(fname, 'trash/' + os.path.basename(fname))
 
+    logging.debug('  << removeFile')
+
+def getFileName(fname):
+    logging.debug('  >> getFileName')
+
+    fname = './' + ' '.join(fname)
     if '.md' not in ''.join(fname):
         fname += '.md'
 
     logging.debug('file name: ' + str(fname))
+    logging.debug('  << getFileName')
+
+    return fname
+
+def editFile(fname, tmpl=None):
+    "Edit file"
+    logging.debug('  >> editFile')
+    logging.debug('file: ' + str(fname))
     logging.debug('tmpl: ' + str(tmpl))
 
     # create folder if it does not exist yet
+    logging.debug(os.path.dirname(fname))
     os.makedirs(os.path.dirname(fname), exist_ok=True)
 
     cmd =  EDITOR + ' "+normal G$" ' + fname.replace(' ', '\ ')
@@ -151,8 +168,9 @@ def main():
     #
     parser = argparse.ArgumentParser()
     parser.add_argument('text', nargs='*', help='input text')
-    parser.add_argument('-i', '--remove', nargs=1, dest="id", help='open note with id')
+    parser.add_argument('-i', '--id', nargs=1, dest="id", help='open note with id')
     parser.add_argument('-f', '--filter', nargs=1, dest="filter", help='filter display result')
+    parser.add_argument('-rm', '--remove', action='store_true', dest="remove", help='remove a note')
     parser.add_argument('-t', '--template', nargs=1, dest="template", help='use template')
     parser.add_argument('-d', '--debug',  action='store_true', dest="debug", help='active debug log')
 
@@ -186,14 +204,20 @@ def main():
             cprint('Cannot find file related to id "' + noteid + '"', 'red')
         logging.debug('args.text: ' + str(args.text))
 
-    # Create/Modify notes
+    # Create/Modify/Remove notes
     if args.text:
         tmpl = None
         if args.template:
             tmpl = getTemplate(args.template)
 
-        editFile(args.text, tmpl)
-        sys.exit(1)
+        fname = getFileName(args.text)
+        # Remove notes
+        if args.remove == True:
+            removeFile(fname)
+            sys.exit(1)
+
+        # Create/Modify notes
+        editFile(fname, tmpl)
 
 if __name__ == '__main__':
     main()

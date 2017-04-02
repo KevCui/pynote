@@ -12,8 +12,6 @@
 
 - Convert md to static html and share locally
 
-- Calculate time and display today, tomorrow...
-
 [x] Archive notes
 
 [x] A must-have beautiful color theme

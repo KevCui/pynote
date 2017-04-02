@@ -197,15 +197,6 @@ def main():
         FILTER = str(args.filter[0])
         logging.debug('FILTER: ' + FILTER)
 
-    # Show all notes
-    if len(args.text) == 0 and args.id == None:
-        if args.archive== True:
-            print('All archived notes:')
-            showNotes('archive')
-        else:
-            showNotes()
-        sys.exit(1)
-
     # Get file name by id
     if args.id:
         noteid = str(args.id[0])
@@ -217,6 +208,15 @@ def main():
         if len(args.text) is 0:
             cprint('Cannot find file related to id "' + noteid + '"', 'red')
         logging.debug('args.text: ' + str(args.text))
+
+    # Show all notes
+    if len(args.text) == 0:
+        if args.archive== True:
+            print('All archived notes:')
+            showNotes('archive')
+        else:
+            showNotes()
+        sys.exit(1)
 
     # Create/Modify/Remove/Archive note
     if args.text:

@@ -112,6 +112,9 @@ def getTemplate(fname):
     "Get template content"
     logging.debug('  << getTemplate')
 
+    if fname == None:
+        return None
+
     fname = TEMPLATE_PATH + '/' + ''.join(fname)
     if os.path.isfile(fname):
         f = open(fname)
@@ -140,6 +143,7 @@ def moveFiletoFolder(fname, folder, extension=True):
     logging.debug('  << moveFiletoFolder')
 
 def getFileName(fname):
+    "Return file name with extension md"
     logging.debug('  >> getFileName')
 
     fname = './' + ' '.join(fname)
@@ -206,25 +210,16 @@ def main():
                 if str(k) == noteid:
                     args.text = [v]
         if len(args.text) is 0:
-            cprint('Cannot find file related to id "' + noteid + '"', 'red')
+            cprint('Cannot find a note related to id "' + noteid + '"', 'red')
         logging.debug('args.text: ' + str(args.text))
 
-    # Show all notes
-    if len(args.text) == 0:
-        if args.archive== True:
-            print('All archived notes:')
-            showNotes('archive')
-        else:
-            showNotes()
-        sys.exit(1)
 
     # Create/Modify/Remove/Archive note
-    if args.text:
-        tmpl = None
-        if args.template:
-            tmpl = getTemplate(args.template)
-
+    # Or else, show all notes
+    if len(args.text) != 0:
+        # Get filename
         fname = getFileName(args.text)
+
         # Remove note
         if args.remove == True:
             moveFiletoFolder(fname, 'trash', False)
@@ -236,7 +231,17 @@ def main():
             sys.exit(1)
 
         # Create/Modify notes
-        editFile(fname, tmpl)
+        editFile(fname, getTemplate(args.template))
+
+    else:
+        if args.archive== True:
+            # Show archived notes
+            print('All archived notes:')
+            showNotes('archive')
+
+        else:
+            # Show all notes
+            showNotes()
 
 if __name__ == '__main__':
     main()

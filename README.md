@@ -57,18 +57,22 @@ optional arguments:
 
 ```~$ note```
 
+* Open note by id:
+
+```~$ note -i 1```
+
 * Filter notes by key word *blog*:
 
 ```~$ note -f blog```
 
-* Archieve note by id:
+* Archieve note:
 
-```~$ note -i 1```
+```~$ note -a post```
 
 * Show all archived notes:
 
 ```~$ note -a```
 
-* Remove a note:
+* Remove a note by id:
 
 ```~$ note -rm -i 1```

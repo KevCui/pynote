@@ -1,8 +1,9 @@
+*2017-04-02 10:55:16 Sun*
 *2017-03-26 22:20:11 Sun*
 *2017-03-26 20:26:53 Sun*
 *2017-03-25 19:16:47 Sat*
 
-- Fix bug: create folder/note, folder not exist
+[x] Fix bug: create folder/note, folder not exist
 
 - Delete note and folder
 

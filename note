@@ -132,6 +132,9 @@ def editFile(fname, tmpl=None):
     logging.debug('file name: ' + str(fname))
     logging.debug('tmpl: ' + str(tmpl))
 
+    # create folder if it does not exist yet
+    os.makedirs(os.path.dirname(fname), exist_ok=True)
+
     cmd =  EDITOR + ' "+normal G$" ' + fname.replace(' ', '\ ')
     timeStr = time.strftime('*' + TIME_FORMAT + '*')
 

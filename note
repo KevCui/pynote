@@ -177,11 +177,11 @@ def main():
     #
     parser = argparse.ArgumentParser()
     parser.add_argument('text', nargs='*', help='input text')
+    parser.add_argument('-t', '--template', nargs=1, dest="template", help='use template')
     parser.add_argument('-i', '--id', nargs=1, dest="id", help='open note with id')
     parser.add_argument('-f', '--filter', nargs=1, dest="filter", help='filter display result')
     parser.add_argument('-rm', '--remove', action='store_true', dest="remove", help='remove a note')
     parser.add_argument('-a', '--archive', action='store_true', dest="archive", help='move note to archive, without parameter to show all archived notes')
-    parser.add_argument('-t', '--template', nargs=1, dest="template", help='use template')
     parser.add_argument('-d', '--debug',  action='store_true', dest="debug", help='active debug log')
 
     args = parser.parse_args()
@@ -198,11 +198,15 @@ def main():
         logging.debug('FILTER: ' + FILTER)
 
     # Show all notes
-    if len(sys.argv) == 1 or (len(sys.argv) < 3 and args.debug != False) or 'FILTER' in globals():
-        showNotes()
+    if len(args.text) == 0 and args.id == None:
+        if args.archive== True:
+            print('All archived notes:')
+            showNotes('archive')
+        else:
+            showNotes()
         sys.exit(1)
 
-    # Open note with id
+    # Get file name by id
     if args.id:
         noteid = str(args.id[0])
         logging.debug('ID: ' + noteid)
@@ -233,11 +237,6 @@ def main():
 
         # Create/Modify notes
         editFile(fname, tmpl)
-    else:
-        # Show notes in archive
-        if args.archive== True:
-            print('All archived notes:')
-            showNotes('archive')
 
 if __name__ == '__main__':
     main()

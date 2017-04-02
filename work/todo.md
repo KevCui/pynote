@@ -1,3 +1,4 @@
+*2017-04-02 20:01:28 Sun*
 *2017-04-02 10:55:16 Sun*
 *2017-03-26 22:20:11 Sun*
 *2017-03-26 20:26:53 Sun*
@@ -13,6 +14,6 @@
 
 - Calculate time and display today, tomorrow...
 
-- Archive notes
+[x] Archive notes
 
 [x] A must-have beautiful color theme

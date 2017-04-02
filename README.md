@@ -12,11 +12,17 @@ pynote is a :notebook_with_decorative_cover: organization script, aims to create
 
 ### Feature
 [x] Create folder and notes
+
 [x] Apply a template to a note, while creating or editing it
+
 [x] Show all notes/archived notes
+
 [x] Filter notes by keyword
+
 [x] Choose specific note by id
+
 [x] Archive notes
+
 [x] Remove notes (move to *trash* folder)
 
 ### Requirement

@@ -10,8 +10,6 @@
 
 [x] Map notes to id number, fast open using id
 
-- Convert md to static html and share locally
-
 [x] Archive notes
 
 [x] A must-have beautiful color theme

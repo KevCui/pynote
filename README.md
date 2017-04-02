@@ -29,18 +29,22 @@ EDITOR
 ```
 ### How to use
 ```
-usage: note [-h] [-i ID] [-f FILTER] [-t TEMPLATE] [-d] [text [text ...]]
+usage: note [-h] [-t TEMPLATE] [-i ID] [-f FILTER] [-rm] [-a] [-d]
+            [text [text ...]]
 
 positional arguments:
   text                  input text
 
 optional arguments:
   -h, --help            show this help message and exit
-  -i ID, --remove ID    open note with id
-  -f FILTER, --filter FILTER
-                        filter display result
   -t TEMPLATE, --template TEMPLATE
                         use template
+  -i ID, --id ID        open note with id
+  -f FILTER, --filter FILTER
+                        filter display result
+  -rm, --remove         remove a note
+  -a, --archive         move note to archive, without parameter to show all
+                        archived notes
   -d, --debug           active debug log
 ```
 
@@ -49,10 +53,22 @@ optional arguments:
 
 ```~$ note post -t blog```
 
-* Show all notes and folders:
+* Show all notes:
 
 ```~$ note```
 
 * Filter notes by key word *blog*:
 
 ```~$ note -f blog```
+
+* Archieve note by id:
+
+```~$ note -i 1```
+
+* Show all archived notes:
+
+```~$ note -a```
+
+* Remove a note:
+
+```~$ note -rm -i 1```

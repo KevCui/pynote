@@ -19,6 +19,7 @@ TIME_FORMAT = '%Y-%m-%d %H:%M:%S %a'
 TEMPLATE_PATH = './template'
 EDITOR = 'vim'
 NOTE_JSON = 'note.json'
+PREPEND_TIME = False
 
 def configLog(debug):
     "Configure logging"
@@ -170,7 +171,9 @@ def editFile(fname, tmpl=None):
 
     if tmpl != None:
         appendLine(fname, tmpl)
-    prependLine(fname, timeStr)
+
+    if PREPEND_TIME:
+        prependLine(fname, timeStr)
     subprocess.call(cmd, shell=True)
     logging.debug('  << editFile')
 

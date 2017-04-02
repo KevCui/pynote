@@ -10,6 +10,15 @@ pynote
 ==========
 pynote is a :notebook_with_decorative_cover: organization script, aims to create/modify/find/organize notes easily. As a CLI fan, I tried to find some notes tool in terminal. But I cannot find one which is easily to use. So I decide to create my own tool.
 
+### Feature
+[x] Create folder and notes
+[x] Apply a template to a note, while creating or editing it
+[x] Show all notes/archived notes
+[x] Filter notes by keyword
+[x] Choose specific note by id
+[x] Archive notes
+[x] Remove notes (move to *trash* folder)
+
 ### Requirement
 * Python3
 * termcolor
@@ -39,7 +48,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -t TEMPLATE, --template TEMPLATE
                         use template
-  -i ID, --id ID        open note with id
+  -i ID, --id ID        use note id to select a specific note
   -f FILTER, --filter FILTER
                         filter display result
   -rm, --remove         remove a note

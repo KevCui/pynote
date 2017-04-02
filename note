@@ -182,7 +182,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('text', nargs='*', help='input text')
     parser.add_argument('-t', '--template', nargs=1, dest="template", help='use template')
-    parser.add_argument('-i', '--id', nargs=1, dest="id", help='open note with id')
+    parser.add_argument('-i', '--id', nargs=1, dest="id", help='use note id to select a specific note')
     parser.add_argument('-f', '--filter', nargs=1, dest="filter", help='filter display result')
     parser.add_argument('-rm', '--remove', action='store_true', dest="remove", help='remove a note')
     parser.add_argument('-a', '--archive', action='store_true', dest="archive", help='move note to archive, without parameter to show all archived notes')

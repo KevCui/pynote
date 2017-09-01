@@ -18,7 +18,7 @@ from termcolor import colored, cprint
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S %a'
 TEMPLATE_PATH = './template'
 EDITOR = 'vim'
-NOTE_JSON = 'note.json'
+NOTE_JSON = '.note.json'
 PREPEND_TIME = False
 
 def configLog(debug):
@@ -97,7 +97,9 @@ def showNotes(folder='.'):
     updateJSON(NOTE_JSON, folder)
 
     with open(NOTE_JSON, 'r') as f:
-        for k,v in json.load(f).items():
+        jfile = json.load(f)
+        for k in sorted(jfile.keys(), key=int):
+            v = jfile[k]
             if 'FILTER' in globals() and FILTER != '':
                 if str(FILTER).lower() in str(v).lower():
                     index = str(v).lower().index(str(FILTER).lower())

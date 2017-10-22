@@ -98,7 +98,7 @@ def showNotes(folder='.'):
 
     with open(NOTE_JSON, 'r') as f:
         jfile = json.load(f)
-        for k in sorted(jfile.keys(), key=int):
+        for k in sorted(jfile.keys(), key=int, reverse=True):
             v = jfile[k]
             if 'FILTER' in globals() and FILTER != '':
                 if str(FILTER).lower() in str(v).lower():

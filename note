@@ -17,19 +17,28 @@ from termcolor import colored, cprint
 #
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S %a'
 TEMPLATE_PATH = './template'
-EDITOR = 'vim'
 NOTE_JSON = '.note.json'
 PREPEND_TIME = False
 
+if 'EDITOR' in os.environ.keys() and os.environ['EDITOR']:
+    EDITOR = os.environ["EDITOR"]
+else:
+    EDITOR = 'vim'
+
+
 def configLog(debug):
     "Configure logging"
-    logfile = os.path.basename(__file__) + '.log' if debug == True else None
+    logfile = os.path.basename(__file__) + \
+        '.debug.log' if debug is True else None
     loglevel = logging.DEBUG if logfile is not None else None
-    logging.basicConfig(format='%(asctime)s [%(levelname)8s] %(message)s', filename=logfile, level=loglevel)
+    logging.basicConfig(
+        format='%(asctime)s [%(levelname)8s] %(message)s', filename=logfile, level=loglevel)
+
 
 def getmtime(fname):
     "Get last modify time and format it"
     return datetime.fromtimestamp(os.path.getmtime(fname + '.md')).strftime(TIME_FORMAT)
+
 
 def findFiles(pattern):
     "Get all files which mataches pattern"
@@ -42,22 +51,11 @@ def findFiles(pattern):
     logging.debug('  << findFiles')
     return files
 
-def appendLine(fname, line):
-    "Append line at the end of file"
-    logging.debug('  >> appendLine')
 
-    try:
-        f = open(fname, 'r+')
-    except IOError:
-        f = open(fname, 'w+')
-
-    content = f.read()
-    f.write('\n' + line)
-    logging.debug('  << appendLine')
-
-def prependLine(fname, line):
-    "Prepend line at the beginning of file"
-    logging.debug('  >> prependLine')
+def writeFile(fname, line, mode):
+    "Append line at the end of file or Prepend line at the beginning of file"
+    logging.debug('  >> writeFile')
+    logging.debug('line: ' + str(line))
 
     try:
         f = open(fname, 'r+')
@@ -66,9 +64,13 @@ def prependLine(fname, line):
 
     content = f.read()
     f.seek(0, 0)
-    f.write(line.rstrip('\r\n') + '\n' + content)
+    if mode is 'prepend':
+        f.write(line.rstrip('\r\n') + '\n' + content)
+    else:
+        f.write(content + '\n' + line.rstrip('\r\n'))
     f.close()
-    logging.debug('  << prependLine')
+    logging.debug('  << writeFile')
+
 
 def updateJSON(jfile, folder):
     "Update local file id namd file name mapping"
@@ -81,13 +83,14 @@ def updateJSON(jfile, folder):
     i = 1
     data = {}
     for fn in files:
-        if os.path.dirname(fn).startswith('./archive') != True:
+        if os.path.dirname(fn).startswith('./archive') is not True:
             data[i] = fn.replace('./', '').replace('.md', '')
             i += 1
     logging.debug('update json: ' + str(data))
     with open(jfile, 'w') as f:
         json.dump(data, f, ensure_ascii=False)
     logging.debug('  << updateJSON')
+
 
 def showNotes(folder='.'):
     "Display all notes in path"
@@ -106,16 +109,19 @@ def showNotes(folder='.'):
                     before = v[:index]
                     match = v[index:index+len(FILTER)]
                     after = v[index+len(FILTER):]
-                    print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(before, 'green') + colored(match, 'red') + colored(after, 'green'))
+                    print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(
+                        before, 'green') + colored(match, 'red') + colored(after, 'green'))
             else:
-                print(str(getmtime(v)), '|', colored(k, 'yellow'), '|', colored(v, 'green'))
+                print(str(getmtime(v)), '|', colored(
+                    k, 'yellow'), '|', colored(v, 'green'))
     logging.debug('  << showNotes')
+
 
 def getTemplate(fname):
     "Get template content"
     logging.debug('  << getTemplate')
 
-    if fname == None:
+    if fname is None:
         return None
 
     fname = TEMPLATE_PATH + '/' + ''.join(fname)
@@ -130,6 +136,7 @@ def getTemplate(fname):
         logging.debug('  >> getTemplate')
         sys.exit(1)
 
+
 def moveFiletoFolder(fname, folder, extension=True):
     "Move file to folder with/without keeping file extension"
     logging.debug('  >> moveFiletoFolder')
@@ -137,13 +144,15 @@ def moveFiletoFolder(fname, folder, extension=True):
     os.makedirs(folder, exist_ok=True)
 
     if os.path.isfile(fname):
-        if extension == True:
+        if extension is True:
             shutil.move(fname, folder + '/' + os.path.basename(fname))
         else:
-            shutil.move(fname, folder + '/' + os.path.splitext(os.path.basename(fname))[0])
+            shutil.move(fname, folder + '/' +
+                        os.path.splitext(os.path.basename(fname))[0])
     else:
         print(colored('File "' + fname + '" not found'))
     logging.debug('  << moveFiletoFolder')
+
 
 def getFileName(fname):
     "Return file name with extension md"
@@ -158,6 +167,7 @@ def getFileName(fname):
 
     return fname
 
+
 def editFile(fname, tmpl=None):
     "Edit file"
     logging.debug('  >> editFile')
@@ -168,16 +178,17 @@ def editFile(fname, tmpl=None):
     logging.debug(os.path.dirname(fname))
     os.makedirs(os.path.dirname(fname), exist_ok=True)
 
-    cmd =  EDITOR + ' "+normal G$" ' + fname.replace(' ', '\ ')
+    cmd = EDITOR + ' "+normal G$" ' + fname.replace(' ', '\ ')
     timeStr = time.strftime('*' + TIME_FORMAT + '*')
 
-    if tmpl != None:
-        appendLine(fname, tmpl)
+    if tmpl is not None:
+        writeFile(fname, tmpl, 'append')
 
     if PREPEND_TIME:
-        prependLine(fname, timeStr)
+        writeFile(fname, timeStr, 'prepend')
     subprocess.call(cmd, shell=True)
     logging.debug('  << editFile')
+
 
 def main():
     #
@@ -186,12 +197,18 @@ def main():
     #
     parser = argparse.ArgumentParser()
     parser.add_argument('text', nargs='*', help='input text')
-    parser.add_argument('-t', '--template', nargs=1, dest="template", help='use template')
-    parser.add_argument('-i', '--id', nargs=1, dest="id", help='use note id to select a specific note')
-    parser.add_argument('-f', '--filter', nargs=1, dest="filter", help='filter display result')
-    parser.add_argument('-rm', '--remove', action='store_true', dest="remove", help='remove a note')
-    parser.add_argument('-a', '--archive', action='store_true', dest="archive", help='move note to archive, without parameter to show all archived notes')
-    parser.add_argument('-d', '--debug',  action='store_true', dest="debug", help='active debug log')
+    parser.add_argument('-t', '--template', nargs=1,
+                        dest="template", help='use template')
+    parser.add_argument('-i', '--id', nargs=1, dest="id",
+                        help='use note id to select a specific note')
+    parser.add_argument('-f', '--filter', nargs=1,
+                        dest="filter", help='filter display result')
+    parser.add_argument('-rm', '--remove', action='store_true',
+                        dest="remove", help='remove a note')
+    parser.add_argument('-a', '--archive', action='store_true', dest="archive",
+                        help='move note to archive, without parameter to show all archived notes')
+    parser.add_argument('-d', '--debug',  action='store_true',
+                        dest="debug", help='active debug log')
 
     args = parser.parse_args()
 
@@ -211,13 +228,12 @@ def main():
         noteid = str(args.id[0])
         logging.debug('ID: ' + noteid)
         with open(NOTE_JSON, 'r') as f:
-            for k,v in json.load(f).items():
+            for k, v in json.load(f).items():
                 if str(k) == noteid:
                     args.text = [v]
         if len(args.text) is 0:
             cprint('Cannot find a note related to id "' + noteid + '"', 'red')
         logging.debug('args.text: ' + str(args.text))
-
 
     # Create/Modify/Remove/Archive note
     # Or else, show all notes
@@ -226,12 +242,12 @@ def main():
         fname = getFileName(args.text)
 
         # Remove note
-        if args.remove == True:
+        if args.remove is True:
             moveFiletoFolder(fname, 'trash', False)
             sys.exit(1)
 
         # Archive note
-        if args.archive== True:
+        if args.archive is True:
             moveFiletoFolder(fname, 'archive')
             sys.exit(1)
 
@@ -239,7 +255,7 @@ def main():
         editFile(fname, getTemplate(args.template))
 
     else:
-        if args.archive== True:
+        if args.archive is True:
             # Show archived notes
             print('All archived notes:')
             showNotes('archive')
@@ -247,6 +263,7 @@ def main():
         else:
             # Show all notes
             showNotes()
+
 
 if __name__ == '__main__':
     main()

@@ -40,9 +40,9 @@ pip install -r requirements.txt
 ```
 TIME_FORMAT: time format to display
 TEMPLATE_PATH: path for template files
-EDITOR: editor, default vim
 NOTE_JSON: json file to save note info
 PREPEND_TIME: add edit time at the beginning
+EDITOR: system editor, if not, set it as vim
 ```
 ### How to use
 ```

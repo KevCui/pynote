@@ -64,7 +64,7 @@ def writeFile(fname, line, mode):
 
     content = f.read()
     f.seek(0, 0)
-    if mode is 'prepend':
+    if mode == 'prepend':
         f.write(line.rstrip('\r\n') + '\n' + content)
     else:
         f.write(content + '\n' + line.rstrip('\r\n'))
@@ -231,7 +231,7 @@ def main():
             for k, v in json.load(f).items():
                 if str(k) == noteid:
                     args.text = [v]
-        if len(args.text) is 0:
+        if len(args.text) == 0:
             cprint('Cannot find a note related to id "' + noteid + '"', 'red')
         logging.debug('args.text: ' + str(args.text))
 
